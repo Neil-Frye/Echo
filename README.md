@@ -1,7 +1,7 @@
 # EthernalEcho
 
 <div align="center">
-  <img src="https://github.com/ethernalecho/assets/logo.png" alt="EthernalEcho Logo" width="200">
+  ![EthernalEcho Logo](https://github.com/ethernalecho/assets/logo.png)
   
   **Preserving Voices, Connecting Hearts, Transcending Time**
 
