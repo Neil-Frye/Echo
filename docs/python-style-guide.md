@@ -1257,7 +1257,7 @@ class VoiceSynthesisModel(nn.Module):
         Args:
             path: Path to checkpoint file
             
-            Returns:
+        Returns:
                 Loaded model instance
         """
         checkpoint = torch.load(path, map_location="cpu")
@@ -1507,7 +1507,7 @@ class VoiceTrainer:
             if p.grad is not None:
                 param_norm = p.grad.data.norm(2)
                 total_norm += param_norm.item() ** 2
-        total_norm = total_norm ** 0.5
+            total_norm = total_norm ** 0.5
         return total_norm
 
 
@@ -1603,18 +1603,6 @@ class TestVoiceSynthesisModel:
         assert model.config == mock_model_config
         assert model.token_embedding.embedding_dim == mock_model_config.hidden_dim
         assert model.transformer.num_layers == mock_model_config.num_layers
-    
-    def test_model_forward_pass(self, mock_voice_model: VoiceSynthesisModel):
-        """Test model forward pass."""
-        config = mock_voice_model.config
-        batch_size = 4
-        seq_len = 50
-        input_ids = torch.randint(0, config.vocab_size, (batch_size, seq_len))
-        
-        logits = mock_voice_model(input_ids)
-        
-        assert isinstance(logits, torch.Tensor)
-        assert logits.shape == (batch_size, seq_len, config.vocab_size)
     
     @patch("torch.save")
     def test_save_checkpoint(
