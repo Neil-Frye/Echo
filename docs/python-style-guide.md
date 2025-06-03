@@ -2,31 +2,62 @@
 
 ## 📋 Table of Contents
 
-- [Introduction](#introduction)
-- [General Principles](#general-principles)
-- [Code Layout](#code-layout)
-- [Naming Conventions](#naming-conventions)
-- [Type Hints](#type-hints)
-- [Functions and Methods](#functions-and-methods)
-- [Classes](#classes)
-- [Error Handling](#error-handling)
-- [Async Programming](#async-programming)
-- [AI/ML Guidelines](#aiml-guidelines)
-- [Testing](#testing)
-- [Performance](#performance)
-- [Security](#security)
+* [Introduction](#introduction)
+* [General Principles](#general-principles)
+* [Code Layout](#code-layout)
+
+  * [Project Structure](#project-structure)
+  * [Imports](#imports)
+  * [Line Length and Indentation](#line-length-and-indentation)
+* [Naming Conventions](#naming-conventions)
+
+  * [Variables and Functions](#variables-and-functions)
+  * [Classes](#classes)
+  * [Constants](#constants)
+* [Type Hints](#type-hints)
+
+  * [Basic Type Hints](#basic-type-hints)
+  * [Advanced Type Hints](#advanced-type-hints)
+  * [Type Aliases](#type-aliases)
+* [Functions and Methods](#functions-and-methods)
+
+  * [Function Design](#function-design)
+  * [Decorators](#decorators)
+* [Classes](#classes-1)
+
+  * [Class Design](#class-design)
+* [Error Handling](#error-handling)
+
+  * [Exception Classes](#exception-classes)
+  * [Exception Handling](#exception-handling)
+* [Async Programming](#async-programming)
+
+  * [Async Functions](#async-functions)
+* [AI/ML Guidelines](#aiml-guidelines)
+
+  * [Model Implementation](#model-implementation)
+  * [Training Loop](#training-loop)
+* [Testing](#testing)
+* [Performance](#performance)
+* [Security](#security)
+
+---
 
 ## 🎯 Introduction
 
 This style guide defines Python coding standards for EthernalEcho's AI and backend services. We follow PEP 8 as our foundation, with additional guidelines specific to our domain.
 
+---
+
 ## 🏗️ General Principles
 
-1. **Clarity over Cleverness**: Write code that's easy to understand
-2. **Type Safety**: Use type hints everywhere
-3. **Explicit over Implicit**: Follow the Zen of Python
-4. **Documentation**: Every public API must be documented
-5. **Testability**: Design code that's easy to test
+1. **Clarity over Cleverness**: Write code that's easy to understand.
+2. **Type Safety**: Use type hints everywhere.
+3. **Explicit over Implicit**: Follow the Zen of Python.
+4. **Documentation**: Every public API must be documented.
+5. **Testability**: Design code that's easy to test.
+
+---
 
 ## 📐 Code Layout
 
@@ -62,10 +93,17 @@ services/
     └── logging.py
 ```
 
+* **services/ai**: Contains AI models, processors, utilities, and tests.
+* **services/api**: FastAPI routers, dependencies, and middleware.
+* **shared/**: Common configurations and logging utilities.
+
+---
+
 ### Imports
 
 ```python
 # ✅ Good - Organized imports
+
 # Standard library imports
 import os
 import sys
@@ -84,7 +122,9 @@ from app.models import VoiceModel, PersonalityModel
 from app.processors import AudioProcessor
 from app.utils import load_checkpoint, save_checkpoint
 
+
 # ❌ Bad - Disorganized imports
+
 from app.models import *  # Avoid wildcard imports
 import torch
 from datetime import datetime
@@ -93,10 +133,17 @@ from app.utils import load_checkpoint
 import numpy as np
 ```
 
+* **Group imports** by type: standard library, third-party, then local.
+* **Avoid** wildcard imports like `from module import *`.
+* **Alphabetize** within each group if there are many imports.
+
+---
+
 ### Line Length and Indentation
 
 ```python
 # ✅ Good - Proper line breaking
+
 def process_audio_sample(
     audio_data: np.ndarray,
     sample_rate: int = 16000,
@@ -122,7 +169,9 @@ def process_audio_sample(
     # Process audio...
     return processed_data
 
+
 # ❌ Bad - Poor formatting
+
 def process_audio_sample(audio_data: np.ndarray, sample_rate: int = 16000, normalize: bool = True, remove_silence: bool = True, min_silence_duration: float = 0.1) -> Dict[str, Any]:
     """Process raw audio data and extract features."""
     if len(audio_data) == 0: raise ValueError("Audio data cannot be empty")
@@ -130,12 +179,19 @@ def process_audio_sample(audio_data: np.ndarray, sample_rate: int = 16000, norma
     return processed_data
 ```
 
+* **Limit** lines to 88 characters (PEP 8).
+* Indent continuation lines with **4 spaces** and break after commas in parameter lists.
+* **Avoid** putting multiple statements on one line (e.g., `if ...: raise ...`).
+
+---
+
 ## 📝 Naming Conventions
 
 ### Variables and Functions
 
 ```python
 # ✅ Good naming
+
 user_profile = await fetch_user_profile(user_id)
 is_recording = False
 max_retry_attempts = 3
@@ -147,20 +203,29 @@ def calculate_voice_quality(samples: List[VoiceSample]) -> float:
         return 0.0
     return sum(s.quality for s in samples) / len(samples)
 
+
 # ❌ Bad naming
+
 prof = await get_prof(id)  # Too abbreviated
-recording = False  # Ambiguous boolean name
-MAX_RETRY = 3  # Should be lowercase
-audioSampleRate = 16000  # Should be snake_case
+recording = False          # Ambiguous boolean name
+MAX_RETRY = 3              # Should be lowercase (unless it's a constant)
+audioSampleRate = 16000    # Should be snake_case
 
 def calc(s: List[Any]) -> float:  # Unclear function name
     return sum(s.q for s in s) / len(s)
 ```
 
+* Use **snake\_case** for variables and function names.
+* Make names **descriptive** and avoid unnecessary abbreviations.
+* Boolean flags should start with `is_`, `has_`, `should_`, etc.
+
+---
+
 ### Classes
 
 ```python
 # ✅ Good - Clear class names
+
 class VoiceEncoder(nn.Module):
     """Encodes voice samples into embeddings."""
     
@@ -190,7 +255,9 @@ class AudioProcessor:
         # Implementation
         pass
 
+
 # ❌ Bad - Poor class design
+
 class voice_encoder(nn.Module):  # Should be PascalCase
     def __init__(self):
         super().__init__()
@@ -201,10 +268,17 @@ class voice_encoder(nn.Module):  # Should be PascalCase
         pass
 ```
 
+* Class names should be **PascalCase** (e.g., `VoiceEncoder`).
+* Add **docstrings** at the class level.
+* Use type hints for method parameters and return types.
+
+---
+
 ### Constants
 
 ```python
 # ✅ Good - Clear constants
+
 # Audio processing constants
 DEFAULT_SAMPLE_RATE = 16000
 MAX_AUDIO_DURATION = 300  # seconds
@@ -228,11 +302,18 @@ MODEL_CONFIGS = {
 API_VERSION = "v1"
 API_PREFIX = f"/api/{API_VERSION}"
 
+
 # ❌ Bad - Poor constant naming
-sample_rate = 16000  # Should be uppercase
-MAXDURATION = 300  # Should be snake_case
-supported_formats = ["mp3", "wav"]  # Should be uppercase and tuple
+
+sample_rate = 16000          # Should be uppercase
+MAXDURATION = 300            # Should be snake_case
+supported_formats = ["mp3"]  # Should be uppercase and tuple
 ```
+
+* Constants should be in **UPPER\_SNAKE\_CASE**.
+* Tuples preferred over lists for immutable groups (e.g., `("mp3", "wav")`).
+
+---
 
 ## 🔧 Type Hints
 
@@ -240,10 +321,11 @@ supported_formats = ["mp3", "wav"]  # Should be uppercase and tuple
 
 ```python
 # ✅ Good - Comprehensive type hints
-from typing import List, Dict, Optional, Union, Tuple, Any, Callable
-from datetime import datetime
+
+from typing import List, Dict, Optional, Tuple, Any
 import numpy as np
 import torch
+
 
 def process_voice_samples(
     samples: List[np.ndarray],
@@ -268,7 +350,6 @@ def process_voice_samples(
     }
     
     for sample in samples:
-        # Process each sample
         processed = _process_single_sample(sample, sample_rate, target_length)
         processed_samples.append(processed)
         metadata["total_duration"] += len(sample) / sample_rate
@@ -277,6 +358,7 @@ def process_voice_samples(
 
 
 # ❌ Bad - Missing or incorrect type hints
+
 def process_voice_samples(samples, sample_rate, target_length=None):
     """Process multiple voice samples."""
     processed_samples = []
@@ -289,13 +371,20 @@ def process_voice_samples(samples, sample_rate, target_length=None):
     return processed_samples, metadata
 ```
 
+* Always annotate parameters and return types explicitly.
+* Use `Optional[...]` instead of defaulting to `None` without a hint.
+
+---
+
 ### Advanced Type Hints
 
 ```python
 # ✅ Good - Advanced type usage
+
 from typing import TypeVar, Generic, Protocol, Literal, TypedDict, Callable
 from typing_extensions import ParamSpec
 import numpy.typing as npt
+import torch
 
 # Type variables
 T = TypeVar("T", bound=np.generic)
@@ -330,6 +419,7 @@ class ModelCache(Generic[T]):
 # Callable type hint
 ProcessingFunction = Callable[[npt.NDArray[np.float32], int], npt.NDArray[np.float32]]
 
+
 def apply_processing(
     audio: npt.NDArray[np.float32],
     processors: List[ProcessingFunction]
@@ -341,30 +431,11 @@ def apply_processing(
     return result
 ```
 
-### Type Aliases
+* Use **`Protocol`** to define interfaces.
+* Use **`TypedDict`** for structured dictionaries.
+* Use **`ParamSpec`** and **`TypeVar`** for generic, flexible function signatures.
 
-```python
-# ✅ Good - Meaningful type aliases
-from typing import Dict, List, Tuple, Union
-import numpy as np
-import torch
-
-# Type aliases for clarity
-AudioArray = npt.NDArray[np.float32]
-AudioTensor = torch.Tensor
-SampleRate = int
-Duration = float
-EmbeddingVector = npt.NDArray[np.float32]
-FeatureDict = Dict[str, Union[float, List[float]]]
-
-def extract_audio_features(
-    audio: AudioArray,
-    sample_rate: SampleRate
-) -> Tuple[EmbeddingVector, FeatureDict]:
-    """Extract audio features and embeddings."""
-    # Implementation
-    pass
-```
+---
 
 ## 🎯 Functions and Methods
 
@@ -372,6 +443,7 @@ def extract_audio_features(
 
 ```python
 # ✅ Good - Well-designed functions
+
 def create_voice_model(
     model_type: str,
     config: Optional[Dict[str, Any]] = None,
@@ -399,7 +471,6 @@ def create_voice_model(
             f"Choose from: {', '.join(SUPPORTED_MODELS)}"
         )
     
-    # Create model with configuration
     model_config = DEFAULT_CONFIGS[model_type].copy()
     if config:
         model_config.update(config)
@@ -412,17 +483,26 @@ def create_voice_model(
     
     return model.to(device)
 
+
 # ❌ Bad - Poor function design
+
 def create_model(type, config={}):  # Mutable default argument!
     """Create model."""
     model = MODEL_CLASSES[type](**config)  # No validation
     return model  # No error handling
 ```
 
+* **Validate** inputs early (e.g., supported model types).
+* **Avoid** mutable default arguments (e.g., `config={}`) — use `None` and then set a new dict inside.
+* Use **docstrings** that describe `Args:`, `Returns:`, and `Raises:`.
+
+---
+
 ### Decorators
 
 ```python
 # ✅ Good - Useful decorators
+
 import functools
 import time
 import logging
@@ -457,16 +537,12 @@ def validate_audio_input(func: F) -> F:
     def wrapper(audio: np.ndarray, *args: Any, **kwargs: Any) -> Any:
         if not isinstance(audio, np.ndarray):
             raise TypeError(f"Expected numpy array, got {type(audio)}")
-        
         if audio.ndim not in (1, 2):
             raise ValueError(f"Audio must be 1D or 2D, got {audio.ndim}D")
-        
         if len(audio) == 0:
             raise ValueError("Audio array is empty")
-        
         if not np.isfinite(audio).all():
             raise ValueError("Audio contains NaN or infinite values")
-        
         return func(audio, *args, **kwargs)
     return wrapper
 
@@ -482,17 +558,24 @@ def process_audio_chunk(
     return processed_audio
 ```
 
+* Combine **logging** and **timing** logic via wrappers.
+* Use **type checks** and **value checks** in a decorator rather than duplicating validation in each function.
+
+---
+
 ## 🏛️ Classes
 
 ### Class Design
 
 ```python
 # ✅ Good - Well-designed class
+
 from __future__ import annotations
 from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import numpy as np
+
 
 @dataclass
 class AudioConfig:
@@ -554,8 +637,8 @@ class BaseAudioProcessor(ABC):
         self._is_initialized = False
     
     def _setup_filters(self) -> None:
-        """Set up audio filters."""
-        # Implementation details
+        """Set up audio filters (private)."""
+        # Implementation details for initializing filters
         pass
 
 
@@ -571,7 +654,7 @@ class VoiceEnhancer(BaseAudioProcessor):
         
         Args:
             config: Audio processing configuration
-            noise_reduction_strength: Strength of noise reduction (0-1)
+            noise_reduction_strength: Strength of noise reduction (0–1)
         """
         super().__init__(config)
         self.noise_reduction_strength = noise_reduction_strength
@@ -625,7 +708,6 @@ class VoiceEnhancer(BaseAudioProcessor):
         if self.noise_profile is None:
             return audio
         
-        # Spectral subtraction implementation
         spectrum = self._compute_spectrum(audio)
         clean_spectrum = spectrum - self.noise_reduction_strength * self.noise_profile
         clean_spectrum = np.maximum(clean_spectrum, 0)
@@ -634,40 +716,24 @@ class VoiceEnhancer(BaseAudioProcessor):
     
     def _enhance_voice(self, audio: np.ndarray) -> np.ndarray:
         """Enhance voice frequencies."""
-        # Implementation details
+        # Implementation details (e.g., equalization)
         return audio
     
     def _remove_silence(self, audio: np.ndarray) -> np.ndarray:
         """Remove silence from audio."""
-        # Implementation details
+        # Implementation details (e.g., VAD-based trimming)
         return audio
     
     def _compute_spectrum(self, audio: np.ndarray) -> np.ndarray:
         """Compute frequency spectrum."""
-        # Implementation details
         return np.fft.rfft(audio)
     
     def _inverse_spectrum(self, spectrum: np.ndarray) -> np.ndarray:
         """Compute inverse spectrum."""
-        # Implementation details
         return np.fft.irfft(spectrum)
-
-
-# ❌ Bad - Poor class design
-class voice_enhancer:  # Should be PascalCase
-    def __init__(self):
-        self.config = {}  # No type hints
-        self.initialized = False
-    
-    def process(self, audio):  # No type hints
-        # No validation
-        return audio
-    
-    # No separation of concerns
-    def do_everything(self, audio, config, noise_sample):
-        # Too many responsibilities
-        pass
 ```
+
+---
 
 ## 🚨 Error Handling
 
@@ -675,6 +741,7 @@ class voice_enhancer:  # Should be PascalCase
 
 ```python
 # ✅ Good - Custom exception hierarchy
+
 class EthernalEchoError(Exception):
     """Base exception for all EthernalEcho errors."""
     pass
@@ -724,15 +791,22 @@ class VoiceQualityError(AudioProcessingError):
         self.details = details or {}
 ```
 
+* Define a **base exception** (`EthernalEchoError`) to catch unexpected errors across the codebase.
+* Subclass with **contextual information** for different failure cases (e.g., `AudioProcessingError`, `VoiceQualityError`).
+
+---
+
 ### Exception Handling
 
 ```python
 # ✅ Good - Proper exception handling
+
 import logging
 from typing import Optional, Union
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
 
 async def process_voice_upload(
     file_path: Union[str, Path],
@@ -831,16 +905,23 @@ async def process_voice_upload(
 
 
 # ❌ Bad - Poor exception handling
+
 def process_voice_upload(file_path, user_id):
     """Process uploaded voice file."""
     try:
         audio_data = load_audio(file_path)
         features = extract_voice_features(audio_data)
         return {"status": "success", "features": features}
-    except:  # Bare except
-        print("Error occurred")  # Just printing
-        return None  # Returns None on error
+    except:  # Bare except (discouraged)
+        print("Error occurred")  # Inadequate logging
+        return None  # Swallows error without context
 ```
+
+* Catch **specific exceptions** instead of using bare `except:`.
+* Use **logging** rather than `print`.
+* **Wrap** unexpected exceptions in a higher-level exception to preserve context.
+
+---
 
 ## ⚡ Async Programming
 
@@ -848,11 +929,13 @@ def process_voice_upload(file_path, user_id):
 
 ```python
 # ✅ Good - Proper async implementation
+
 import asyncio
 from typing import List, Optional, AsyncIterator
 import aiohttp
 import aiofiles
 from concurrent.futures import ThreadPoolExecutor
+
 
 class AsyncVoiceProcessor:
     """Asynchronous voice processing service."""
@@ -887,7 +970,6 @@ class AsyncVoiceProcessor:
         tasks = [self.process_voice_file(path) for path in file_paths]
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
-        # Handle partial failures
         processed_results = []
         for path, result in zip(file_paths, results):
             if isinstance(result, Exception):
@@ -935,10 +1017,7 @@ class AsyncVoiceProcessor:
     
     def _extract_features_sync(self, audio_data: bytes) -> Dict[str, float]:
         """CPU-intensive feature extraction (sync)."""
-        # Convert bytes to numpy array
         audio = np.frombuffer(audio_data, dtype=np.int16)
-        
-        # Extract features
         return {
             "duration": len(audio) / 16000,
             "energy": float(np.mean(np.abs(audio))),
@@ -984,6 +1063,7 @@ class AsyncVoiceProcessor:
 
 
 # Usage example
+
 async def main():
     """Example usage of async voice processor."""
     async with AsyncVoiceProcessor() as processor:
@@ -1000,6 +1080,7 @@ async def main():
 
 
 # ❌ Bad - Poor async implementation
+
 async def process_files(files):
     """Process files."""
     results = []
@@ -1020,18 +1101,26 @@ async def process_file(file):
     return features
 ```
 
+* **Use `aiofiles`** for non-blocking file I/O.
+* Offload CPU-bound work to a **ThreadPoolExecutor**.
+* Use **`asyncio.gather`** to run tasks concurrently.
+
+---
+
 ## 🤖 AI/ML Guidelines
 
 ### Model Implementation
 
 ```python
 # ✅ Good - Well-structured AI model
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple, Dict, Any
 import numpy as np
 from dataclasses import dataclass
+
 
 @dataclass
 class ModelConfig:
@@ -1101,7 +1190,7 @@ class VoiceSynthesisModel(nn.Module):
         input_ids: torch.Tensor,
         attention_mask: Optional[torch.Tensor] = None,
         return_hidden_states: bool = False
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """Forward pass through the model.
         
         Args:
@@ -1110,31 +1199,26 @@ class VoiceSynthesisModel(nn.Module):
             return_hidden_states: Whether to return hidden states
             
         Returns:
-            Output logits or tuple of (logits, hidden_states)
+            If return_hidden_states is False: logits tensor [batch_size, seq_len, vocab_size]  
+            If True: (logits, hidden_states)
         """
         batch_size, seq_len = input_ids.shape
         
-        # Get embeddings
         token_embeds = self.token_embedding(input_ids)
         position_ids = torch.arange(seq_len, device=input_ids.device)
         position_embeds = self.position_embedding(position_ids)
         
-        # Combine embeddings
         hidden_states = token_embeds + position_embeds
         hidden_states = F.dropout(hidden_states, p=self.config.dropout, training=self.training)
         
-        # Create attention mask for transformer
         if attention_mask is not None:
-            # Convert to transformer format (True = masked)
-            attention_mask = ~attention_mask.bool()
+            attention_mask = ~attention_mask.bool()  # Masked tokens are True
         
-        # Pass through transformer
         hidden_states = self.transformer(
             hidden_states,
             src_key_padding_mask=attention_mask
         )
         
-        # Output projection
         logits = self.output_projection(hidden_states)
         
         if return_hidden_states:
@@ -1160,34 +1244,29 @@ class VoiceSynthesisModel(nn.Module):
             top_p: Top-p (nucleus) sampling parameter
             
         Returns:
-            Generated token sequences
+            Generated token sequences [batch_size, <= max_length]
         """
         self.eval()
         device = next(self.parameters()).device
         
-        # Initialize with prompt or start token
         if prompt is not None:
             generated = prompt.to(device)
         else:
             generated = torch.zeros((1, 1), dtype=torch.long, device=device)
         
         for _ in range(max_length - generated.shape[1]):
-            # Get model predictions
             logits = self(generated)
             next_token_logits = logits[:, -1, :] / temperature
             
-            # Apply top-k and top-p filtering
             filtered_logits = self._top_k_top_p_filtering(
                 next_token_logits,
                 top_k=top_k,
                 top_p=top_p
             )
             
-            # Sample next token
             probs = F.softmax(filtered_logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
             
-            # Append to generated sequence
             generated = torch.cat([generated, next_token], dim=1)
             
             # Stop if EOS token is generated
@@ -1203,33 +1282,30 @@ class VoiceSynthesisModel(nn.Module):
         top_p: float = 1.0,
         filter_value: float = -float("inf")
     ) -> torch.Tensor:
-        """Filter logits using top-k and/or top-p filtering.
+        """Filter logits using top-k and top-p filtering.
         
         Args:
-            logits: Logits distribution shape [batch_size, vocab_size]
-            top_k: Keep only top k tokens with highest probability
-            top_p: Keep top tokens with cumulative probability >= top_p
-            filter_value: Value to assign to filtered tokens
+            logits: Logits tensor [batch_size, vocab_size]
+            top_k: Keep only top_k tokens
+            top_p: Keep tokens with cumulative prob >= top_p
+            filter_value: Value to assign to filtered logits
             
         Returns:
-            Filtered logits
+            Filtered logits [batch_size, vocab_size]
         """
         if top_k > 0:
-            # Remove all tokens with a probability less than the top_k
-            indices_to_remove = logits < torch.topk(logits, top_k)[0][..., -1, None]
+            topk_values = torch.topk(logits, top_k)[0][..., -1, None]
+            indices_to_remove = logits < topk_values
             logits[indices_to_remove] = filter_value
         
         if top_p < 1.0:
             sorted_logits, sorted_indices = torch.sort(logits, descending=True)
             cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
             
-            # Remove tokens with cumulative probability above the threshold
             sorted_indices_to_remove = cumulative_probs > top_p
-            # Shift the indices to the right to keep also the first token above the threshold
             sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
             sorted_indices_to_remove[..., 0] = 0
             
-            # Scatter sorted tensors to original indexing
             indices_to_remove = sorted_indices_to_remove.scatter(
                 1, sorted_indices, sorted_indices_to_remove
             )
@@ -1258,7 +1334,7 @@ class VoiceSynthesisModel(nn.Module):
             path: Path to checkpoint file
             
         Returns:
-                Loaded model instance
+            Loaded model instance
         """
         checkpoint = torch.load(path, map_location="cpu")
         config = ModelConfig(**checkpoint["config"])
@@ -1268,16 +1344,25 @@ class VoiceSynthesisModel(nn.Module):
         return model
 ```
 
+* Initialize **embeddings** and **transformer layers** in `__init__`.
+* Separate **weight initialization** into a private method.
+* Provide both `forward` and `generate` methods for inference.
+* Keep sampling logic modular (`_top_k_top_p_filtering`).
+
+---
+
 ### Training Loop
 
 ```python
 # ✅ Good - Well-structured training loop
+
 from torch.utils.data import DataLoader, Dataset
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 import wandb
 from tqdm import tqdm
 from pathlib import Path
+
 
 class VoiceTrainer:
     """Trainer for voice synthesis models."""
@@ -1342,7 +1427,7 @@ class VoiceTrainer:
         self.global_step = 0
         self.best_val_loss = float("inf")
         
-        # Initialize wandb
+        # Initialize Weights & Biases
         if use_wandb:
             wandb.init(project="ethernalecho-voice", config={
                 "batch_size": batch_size,
@@ -1361,48 +1446,39 @@ class VoiceTrainer:
         total_loss = 0.0
         total_tokens = 0
         
-        progress_bar = tqdm(self.train_loader, desc="Training")
+        progress_bar = tqdm(self.train_loader, desc="Training", leave=False)
         for batch in progress_bar:
-            # Move batch to device
             input_ids = batch["input_ids"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
             
-            # Forward pass
             logits = self.model(input_ids, attention_mask)
             
-            # Calculate loss
             loss = self.criterion(
-                logits.reshape(-1, logits.size(-1)),
-                labels.reshape(-1)
+                logits.view(-1, logits.size(-1)),
+                labels.view(-1)
             )
             
-            # Backward pass
             self.optimizer.zero_grad()
             loss.backward()
             
-            # Gradient clipping
             torch.nn.utils.clip_grad_norm_(
                 self.model.parameters(),
                 self.gradient_clip
             )
             
-            # Optimizer step
             self.optimizer.step()
             self.scheduler.step()
             
-            # Update metrics
             total_loss += loss.item() * labels.numel()
             total_tokens += labels.numel()
             self.global_step += 1
             
-            # Update progress bar
             progress_bar.set_postfix({
                 "loss": f"{loss.item():.4f}",
                 "lr": f"{self.scheduler.get_last_lr()[0]:.2e}"
             })
             
-            # Log to wandb
             if self.use_wandb and self.global_step % 10 == 0:
                 wandb.log({
                     "train/loss": loss.item(),
@@ -1410,10 +1486,9 @@ class VoiceTrainer:
                     "train/gradient_norm": self._get_gradient_norm()
                 }, step=self.global_step)
         
-        return {
-            "loss": total_loss / total_tokens,
-            "perplexity": torch.exp(torch.tensor(total_loss / total_tokens)).item()
-        }
+        epoch_loss = total_loss / total_tokens
+        epoch_perplexity = torch.exp(torch.tensor(epoch_loss)).item()
+        return {"loss": epoch_loss, "perplexity": epoch_perplexity}
     
     @torch.no_grad()
     def validate(self) -> Dict[str, float]:
@@ -1429,97 +1504,80 @@ class VoiceTrainer:
         total_loss = 0.0
         total_tokens = 0
         
-        for batch in tqdm(self.val_loader, desc="Validation"):
-            # Move batch to device
+        for batch in tqdm(self.val_loader, desc="Validation", leave=False):
             input_ids = batch["input_ids"].to(self.device)
             attention_mask = batch["attention_mask"].to(self.device)
             labels = batch["labels"].to(self.device)
             
-            # Forward pass
             logits = self.model(input_ids, attention_mask)
             
-            # Calculate loss
             loss = self.criterion(
-                logits.reshape(-1, logits.size(-1)),
-                labels.reshape(-1)
+                logits.view(-1, logits.size(-1)),
+                labels.view(-1)
             )
-            
-            # Update metrics
             total_loss += loss.item() * labels.numel()
             total_tokens += labels.numel()
         
         val_loss = total_loss / total_tokens
+        val_perplexity = torch.exp(torch.tensor(val_loss)).item()
         
-        # Log to wandb
         if self.use_wandb:
             wandb.log({
                 "val/loss": val_loss,
-                "val/perplexity": torch.exp(torch.tensor(val_loss)).item()
+                "val/perplexity": val_perplexity
             }, step=self.global_step)
         
-        # Save best checkpoint
-        if val_loss < self.best_val_loss:
-            self.best_val_loss = val_loss
-            if self.checkpoint_dir:
-                self.model.save_checkpoint(
-                    self.checkpoint_dir / "best_model.pth"
-                )
-        
-        return {
-            "loss": val_loss,
-            "perplexity": torch.exp(torch.tensor(val_loss)).item()
-        }
+        return {"loss": val_loss, "perplexity": val_perplexity}
     
-    def train(self, num_epochs: int) -> None:
+    def train(
+        self,
+        num_epochs: int,
+        validate_every: int = 1,
+        save_every: int = 1
+    ) -> None:
         """Train model for a specified number of epochs.
         
         Args:
             num_epochs: Number of epochs to train
+            validate_every: Validate every N epochs
+            save_every: Save checkpoint every N epochs
         """
-        if self.use_wandb:
-            wandb.watch(self.model)
+        logger.info(f"Starting training for {num_epochs} epochs")
         
-        for epoch in range(num_epochs):
-            logger.info(f"Epoch {epoch + 1}/{num_epochs}")
+        for epoch in range(1, num_epochs + 1):
+            logger.info(f"Epoch {epoch}/{num_epochs}")
             
-            # Train epoch
             train_metrics = self.train_epoch()
             logger.info(f"Train metrics: {train_metrics}")
             
-            # Validate epoch
-            val_metrics = self.validate()
-            if val_metrics:
+            if validate_every > 0 and (epoch % validate_every == 0):
+                val_metrics = self.validate()
                 logger.info(f"Validation metrics: {val_metrics}")
+                
+                if val_metrics.get("loss", float("inf")) < self.best_val_loss:
+                    self.best_val_loss = val_metrics["loss"]
+                    self.save_checkpoint(self.checkpoint_dir / "best_model.pt")
             
-            # Save checkpoint
-            if self.checkpoint_dir:
-                self.model.save_checkpoint(
-                    self.checkpoint_dir / f"epoch_{epoch + 1}.pth"
-                )
+            if save_every > 0 and (epoch % save_every == 0):
+                self.save_checkpoint(self.checkpoint_dir / f"checkpoint_epoch_{epoch}.pt")
         
-        if self.use_wandb:
-            wandb.finish()
+        logger.info("Training completed")
     
     def _get_gradient_norm(self) -> float:
-        """Calculate total gradient norm."""
-        total_norm = 0
+        """Calculate gradient norm for monitoring."""
+        total_norm = 0.0
         for p in self.model.parameters():
             if p.grad is not None:
                 param_norm = p.grad.data.norm(2)
                 total_norm += param_norm.item() ** 2
-            total_norm = total_norm ** 0.5
-        return total_norm
-
-
-# ❌ Bad - Poor training loop
-def train_model(model, data, epochs):
-    """Train model."""
-    for epoch in range(epochs):
-        for batch in data:
-            loss = model(batch)
-            loss.backward()
-            # Missing optimizer step, scheduler, logging, validation, etc.
+        return total_norm ** 0.5
 ```
+
+* Log **training** and **validation** metrics consistently.
+* Use **`torch.no_grad()`** during validation to prevent gradient computation.
+* **Save checkpoints** conditionally based on performance.
+
+---
 
 ## 🧪 Testing
 
@@ -1527,434 +1585,671 @@ def train_model(model, data, epochs):
 
 ```python
 # ✅ Good - Well-structured tests
+
 import pytest
 import numpy as np
 import torch
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+import tempfile
 
-from services.ai.processors.audio_processor import AudioProcessor
-from services.ai.models.voice_synthesis import VoiceSynthesisModel, ModelConfig
+# Test fixtures
 
-# Fixtures
 @pytest.fixture
-def sample_audio_data() -> np.ndarray:
-    """Fixture for sample audio data."""
-    # Generate a simple sine wave
-    sample_rate = 16000
+def sample_audio():
+    """Generate sample audio for testing."""
     duration = 1.0  # seconds
-    frequency = 440  # Hz
-    t = np.linspace(0., duration, int(sample_rate * duration), endpoint=False)
-    audio = 0.5 * np.sin(2. * np.pi * frequency * t)
+    sample_rate = 16000
+    t = np.linspace(0, duration, int(sample_rate * duration))
+    # Generate sine wave with noise
+    audio = 0.5 * np.sin(2 * np.pi * 440 * t) + 0.1 * np.random.randn(len(t))
     return audio.astype(np.float32)
 
 
 @pytest.fixture
-def mock_model_config() -> ModelConfig:
-    """Fixture for a mock model configuration."""
-    return ModelConfig(
-        hidden_dim=16,
-        num_layers=2,
-        num_heads=2,
-        max_length=100,
-        vocab_size=256
+def audio_config():
+    """Create test audio configuration."""
+    return AudioConfig(
+        sample_rate=16000,
+        channels=1,
+        bit_depth=16,
+        normalize=True
     )
 
 
 @pytest.fixture
-def mock_voice_model(mock_model_config: ModelConfig) -> VoiceSynthesisModel:
-    """Fixture for a mock voice synthesis model."""
-    model = VoiceSynthesisModel(mock_model_config)
-    # Initialize with dummy weights if needed
-    return model
+def voice_model():
+    """Create test voice model."""
+    config = ModelConfig(hidden_dim=128, num_layers=2, num_heads=4, max_length=50, vocab_size=256)
+    return VoiceSynthesisModel(config)
 
 
-# Unit tests for AudioProcessor
+# Test suites
+
 class TestAudioProcessor:
-    def test_process_audio_sample_valid(self, sample_audio_data: np.ndarray):
-        """Test processing a valid audio sample."""
-        processor = AudioProcessor(sample_rate=16000)
-        processed_audio = processor.process(sample_audio_data)
-        
-        assert isinstance(processed_audio, np.ndarray)
-        assert processed_audio.ndim == 1
-        assert len(processed_audio) > 0
-        # Add more specific assertions based on processing logic
+    """Test suite for audio processor."""
     
-    def test_process_audio_sample_empty(self):
-        """Test processing an empty audio sample."""
-        processor = AudioProcessor(sample_rate=16000)
+    def test_initialization(self, audio_config):
+        """Test processor initialization."""
+        processor = VoiceEnhancer(config=audio_config)
+        assert processor.config == audio_config
+        assert processor.noise_reduction_strength == 0.5
+        assert processor.noise_profile is None
+        assert not processor._is_initialized
+    
+    def test_normalize_audio(self, sample_audio):
+        """Test audio normalization."""
+        audio = np.array([0.5, -1.0, 0.8, -0.3], dtype=np.float32)
+        normalized = VoiceEnhancer._normalize(audio)
+        assert np.abs(normalized).max() == pytest.approx(0.95, rel=1e-5)
+        assert normalized.shape == audio.shape
+        assert np.allclose(normalized / normalized.max(), audio / audio.max())
+    
+    def test_process_empty_audio(self, audio_config):
+        """Test processing empty audio raises error."""
+        processor = VoiceEnhancer(config=audio_config)
+        empty_audio = np.array([], dtype=np.float32)
         with pytest.raises(ValueError, match="Audio data cannot be empty"):
-            processor.process(np.array([], dtype=np.float32))
+            processor.process(empty_audio)
     
-    @pytest.mark.parametrize("invalid_rate", [0, -100, 10.5])
-    def test_audio_processor_invalid_sample_rate(self, invalid_rate: Any):
-        """Test AudioProcessor with invalid sample rates."""
-        with pytest.raises(ValueError, match="Sample rate must be positive integer"):
-            AudioProcessor(sample_rate=invalid_rate)
+    def test_noise_profile_learning(self, sample_audio, audio_config):
+        """Test noise profile learning."""
+        processor = VoiceEnhancer(config=audio_config)
+        noise_sample = np.random.randn(16000).astype(np.float32) * 0.1
+        processor.learn_noise_profile(noise_sample)
+        assert processor.noise_profile is not None
+        assert isinstance(processor.noise_profile, np.ndarray)
+        assert len(processor.noise_profile) > 0
+    
+    @pytest.mark.parametrize("noise_strength", [0.0, 0.5, 1.0])
+    def test_noise_reduction_levels(self, sample_audio, audio_config, noise_strength):
+        """Test different noise reduction strengths."""
+        processor = VoiceEnhancer(
+            config=audio_config,
+            noise_reduction_strength=noise_strength
+        )
+        
+        clean_signal = np.sin(2 * np.pi * 440 * np.linspace(0, 1, 16000))
+        noise = np.random.randn(16000) * 0.1
+        noisy_signal = (clean_signal + noise).astype(np.float32)
+        
+        processor.learn_noise_profile(noise.astype(np.float32))
+        processed = processor.process(noisy_signal)
+        
+        assert processed.shape == noisy_signal.shape
+        assert processed.dtype == np.float32
+        
+        if noise_strength > 0:
+            noise_level_before = np.std(noisy_signal - clean_signal)
+            noise_level_after = np.std(processed - clean_signal)
+            assert noise_level_after <= noise_level_before
+    
+    def test_context_manager(self, audio_config):
+        """Test processor as context manager."""
+        with VoiceEnhancer(config=audio_config) as processor:
+            assert processor._is_initialized
+            audio = np.random.randn(16000).astype(np.float32)
+            result = processor.process(audio)
+            assert result is not None
+        
+        assert not processor._is_initialized
+        assert len(processor._cache) == 0
 
 
-# Unit tests for VoiceSynthesisModel
-class TestVoiceSynthesisModel:
-    def test_model_initialization(self, mock_model_config: ModelConfig):
+class TestVoiceModel:
+    """Test suite for voice synthesis model."""
+    
+    def test_model_initialization(self):
         """Test model initialization."""
-        model = VoiceSynthesisModel(mock_model_config)
-        assert isinstance(model, nn.Module)
-        assert model.config == mock_model_config
-        assert model.token_embedding.embedding_dim == mock_model_config.hidden_dim
-        assert model.transformer.num_layers == mock_model_config.num_layers
+        config = ModelConfig(
+            hidden_dim=256,
+            num_layers=4,
+            num_heads=8,
+            max_length=64,
+            vocab_size=512
+        )
+        model = VoiceSynthesisModel(config)
+        
+        assert isinstance(model.token_embedding, nn.Embedding)
+        assert model.token_embedding.num_embeddings == 512
+        assert model.token_embedding.embedding_dim == 256
+        
+        param_count = sum(p.numel() for p in model.parameters())
+        assert param_count > 0
     
-    @patch("torch.save")
-    def test_save_checkpoint(
-        self,
-        mock_torch_save: MagicMock,
-        mock_voice_model: VoiceSynthesisModel
-    ):
-        """Test saving a model checkpoint."""
-        checkpoint_path = Path("/tmp/test_checkpoint.pth")
-        mock_voice_model.save_checkpoint(checkpoint_path)
+    def test_forward_pass(self, voice_model):
+        """Test model forward pass."""
+        batch_size = 2
+        seq_len = 10
+        input_ids = torch.randint(0, 256, (batch_size, seq_len))
+        attention_mask = torch.ones(batch_size, seq_len, dtype=torch.bool)
         
-        mock_torch_save.assert_called_once()
-        call_args, call_kwargs = mock_torch_save.call_args
-        
-        saved_checkpoint = call_args[0]
-        saved_path = call_args[1]
-        
-        assert "model_state_dict" in saved_checkpoint
-        assert "config" in saved_checkpoint
-        assert saved_checkpoint["config"] == mock_voice_model.config.to_dict()
-        assert saved_path == checkpoint_path
+        logits = voice_model(input_ids, attention_mask)
+        assert logits.shape == (batch_size, seq_len, 256)
+        assert logits.dtype == torch.float32
     
-    @patch("torch.load")
-    @patch("services.ai.models.voice_synthesis.VoiceSynthesisModel")
-    def test_from_checkpoint(
-        self,
-        MockVoiceSynthesisModel: MagicMock,
-        mock_torch_load: MagicMock,
-        mock_model_config: ModelConfig
-    ):
-        """Test loading a model from a checkpoint."""
-        checkpoint_path = Path("/tmp/test_checkpoint.pth")
-        mock_checkpoint_data = {
-            "model_state_dict": {"dummy_key": "dummy_value"},
-            "config": mock_model_config.to_dict()
-        }
-        mock_torch_load.return_value = mock_checkpoint_data
+    def test_generation(self, voice_model):
+        """Test autoregressive generation."""
+        prompt = torch.tensor([[1, 2, 3]])
+        generated = voice_model.generate(
+            prompt=prompt,
+            max_length=20,
+            temperature=0.8,
+            top_k=50
+        )
+        
+        assert generated.shape[0] == 1
+        assert prompt.shape[1] <= generated.shape[1] <= 20
+        assert torch.all(generated[:, :3] == prompt)
+    
+    def test_checkpoint_save_load(self, voice_model, tmp_path):
+        """Test checkpoint saving and loading."""
+        checkpoint_path = tmp_path / "test_checkpoint.pt"
+        voice_model.save_checkpoint(checkpoint_path)
+        assert checkpoint_path.exists()
         
         loaded_model = VoiceSynthesisModel.from_checkpoint(checkpoint_path)
+        assert loaded_model.config == voice_model.config
         
-        mock_torch_load.assert_called_once_with(checkpoint_path, map_location="cpu")
-        MockVoiceSynthesisModel.assert_called_once_with(mock_model_config)
-        loaded_model.load_state_dict.assert_called_once_with(
-            mock_checkpoint_data["model_state_dict"]
+        for (n1, p1), (n2, p2) in zip(
+            voice_model.named_parameters(),
+            loaded_model.named_parameters()
+        ):
+            assert n1 == n2
+            assert torch.allclose(p1, p2)
+    
+    @pytest.mark.parametrize("top_k,top_p", [(0, 1.0), (50, 1.0), (0, 0.95), (50, 0.95)])
+    def test_sampling_strategies(self, voice_model, top_k, top_p):
+        """Test different sampling strategies."""
+        logits = torch.randn(1, 256)
+        filtered = voice_model._top_k_top_p_filtering(
+            logits,
+            top_k=top_k,
+            top_p=top_p
         )
-        assert loaded_model == MockVoiceSynthesisModel.return_value
+        
+        assert filtered.shape == logits.shape
+        if top_k > 0:
+            num_valid = (filtered != -float("inf")).sum().item()
+            assert num_valid <= top_k
+        
+        if top_p < 1.0:
+            probs = torch.softmax(filtered, dim=-1)
+            sorted_probs, _ = torch.sort(probs, descending=True)
+            cumsum = torch.cumsum(sorted_probs, dim=-1)
+            cutoff_idx = (cumsum > top_p).nonzero(as_tuple=False)
+            if cutoff_idx.numel() > 0:
+                cutoff = cutoff_idx[0, 0].item()
+                assert (filtered != -float("inf")).sum() <= cutoff + 1
 
 
-# Integration tests (example)
-@pytest.mark.integration
-def test_audio_processing_pipeline(sample_audio_data: np.ndarray):
-    """Test the full audio processing pipeline."""
-    processor = AudioProcessor(sample_rate=16000)
-    model_config = ModelConfig(hidden_dim=16, num_layers=2, num_heads=2)
-    model = VoiceSynthesisModel(model_config)
+@pytest.mark.asyncio
+class TestAsyncProcessing:
+    """Test suite for async processing."""
     
-    # Simulate processing and encoding
-    processed_audio = processor.process(sample_audio_data)
-    audio_tensor = torch.from_numpy(processed_audio).unsqueeze(0) # Add batch dim
-    embedding = model(audio_tensor, return_hidden_states=True)[1] # Get hidden state
+    async def test_async_file_processing(self, sample_audio, tmp_path):
+        """Test async file processing."""
+        audio_file = tmp_path / "test.wav"
+        np.save(audio_file, sample_audio)
+        
+        async with AsyncVoiceProcessor() as processor:
+            result = await processor.process_voice_file(audio_file)
+            assert result["status"] == "success"
+            assert "features" in result
+            assert result["features"]["duration"] > 0
     
-    assert isinstance(embedding, torch.Tensor)
-    assert embedding.shape == (1, audio_tensor.shape[1], model_config.hidden_dim)
-    # Add more assertions based on expected output
+    async def test_batch_processing(self, sample_audio, tmp_path):
+        """Test batch processing with mixed success/failure."""
+        files = []
+        for i in range(3):
+            audio_file = tmp_path / f"test_{i}.wav"
+            np.save(audio_file, sample_audio)
+            files.append(audio_file)
+        
+        files.append(tmp_path / "missing.wav")
+        
+        async with AsyncVoiceProcessor() as processor:
+            results = await processor.process_voice_batch(files)
+            assert len(results) == 4
+            for i in range(3):
+                assert results[i]["status"] == "success"
+            assert results[3]["status"] == "error"
+    
+    @patch("aiohttp.ClientSession.post")
+    async def test_feature_upload(self, mock_post):
+        """Test async feature upload."""
+        mock_response = MagicMock()
+        mock_response.json = MagicMock(return_value={"id": "123", "status": "ok"})
+        mock_post.return_value.__aenter__.return_value = mock_response
+        
+        async with AsyncVoiceProcessor() as processor:
+            features = {"duration": 1.5, "energy": 0.8}
+            result = await processor._upload_features(features)
+            assert result["id"] == "123"
+            assert result["status"] == "ok"
+            mock_post.assert_called_once()
+
+
+# ❌ Bad - Poor test structure
+
+def test_processor():
+    """Test processor."""
+    processor = VoiceEnhancer()
+    audio = [1, 2, 3]  # Wrong type
+    result = processor.process(audio)
+    assert result  # Weak assertion
+
+def test_model():
+    """Test model."""
+    model = VoiceSynthesisModel()
+    # No actual assertions or validations; meaningless test
+    print("Model created")
 ```
 
-### Test Utilities
+* Use **pytest fixtures** for reusable test data.
+* Replace broad `assert` statements with **specific checks** (e.g., `pytest.raises`, `assert shape == ...`).
+* **Mock** external dependencies (e.g., network calls) in tests to isolate logic.
 
-```python
-# ✅ Good - Reusable test utilities
-import numpy as np
-import torch
-from unittest.mock import MagicMock
-
-def create_mock_audio_array(
-    duration_seconds: float,
-    sample_rate: int = 16000
-) -> np.ndarray:
-    """Create a mock audio numpy array."""
-    num_samples = int(duration_seconds * sample_rate)
-    # Generate random audio data between -1 and 1
-    audio = 2 * np.random.rand(num_samples) - 1
-    return audio.astype(np.float32)
-
-
-def create_mock_voice_sample(
-    sample_id: str = "test-sample",
-    duration: float = 30.0,
-    quality: float = 0.9,
-    audio_url: str = "https://example.com/audio.wav"
-) -> MagicMock:
-    """Create a mock VoiceSample object."""
-    mock_sample = MagicMock()
-    mock_sample.id = sample_id
-    mock_sample.duration = duration
-    mock_sample.quality = quality
-    mock_sample.audio_url = audio_url
-    return mock_sample
-
-
-def create_mock_model_state_dict(
-    config: ModelConfig
-) -> Dict[str, torch.Tensor]:
-    """Create a mock model state dictionary."""
-    # This is a simplified example; a real state dict would be more complex
-    return {
-        "token_embedding.weight": torch.randn(
-            config.vocab_size,
-            config.hidden_dim
-        ),
-        "position_embedding.weight": torch.randn(
-            config.max_length,
-            config.hidden_dim
-        ),
-        # ... other layers
-    }
-```
+---
 
 ## ⚡ Performance
-
-### Profiling
-
-```python
-# ✅ Good - Use profiling tools
-import cProfile
-import pstats
-import io
-import logging
-
-logger = logging.getLogger(__name__)
-
-def profile_function(func: Callable, *args: Any, **kwargs: Any) -> Any:
-    """Profile a function and print results."""
-    pr = cProfile.Profile()
-    pr.enable()
-    
-    result = func(*args, **kwargs)
-    
-    pr.disable()
-    s = io.StringIO()
-    ps = pstats.Stats(pr, stream=s).sort_stats("cumulative")
-    ps.print_stats()
-    
-    logger.info(f"Profiling results for {func.__name__}:\n{s.getvalue()}")
-    
-    return result
-
-# Usage
-# profile_function(process_large_audio_file, "path/to/file.wav")
-```
 
 ### Optimization Techniques
 
 ```python
-# ✅ Good - Optimized code
+# ✅ Good - Performance-optimized code
+
+import numba
+from functools import lru_cache
+from concurrent.futures import ProcessPoolExecutor
 import numpy as np
-import torch
 
-def batch_process_audio(
-    audio_list: List[np.ndarray],
-    sample_rate: int = 16000
-) -> torch.Tensor:
-    """Process a batch of audio samples efficiently."""
-    # Pad sequences to max length
-    max_len = max(len(a) for a in audio_list)
-    padded_audio = np.zeros((len(audio_list), max_len), dtype=np.float32)
-    attention_masks = torch.zeros((len(audio_list), max_len), dtype=torch.long)
-    
-    for i, audio in enumerate(audio_list):
-        padded_audio[i, :len(audio)] = audio
-        attention_masks[i, :len(audio)] = 1 # 1 for real tokens, 0 for padding
-    
-    # Convert to torch tensor and move to device
-    audio_tensor = torch.from_numpy(padded_audio).to("cuda")
-    attention_masks = attention_masks.to("cuda")
-    
-    # Process batch on GPU
-    processed_tensor = process_audio_batch_on_gpu(audio_tensor, attention_masks)
-    
-    return processed_tensor
+# JIT compilation for numerical operations
 
-# ❌ Bad - Inefficient code
-def process_audio_list_slow(audio_list: List[np.ndarray]) -> List[torch.Tensor]:
-    """Process audio list inefficiently."""
-    results = []
-    for audio in audio_list:
-        # Process each sample individually on CPU
-        processed = process_single_audio_on_cpu(audio)
-        results.append(torch.from_numpy(processed))
-    return results
-```
-
-## 🔒 Security
-
-### Input Validation
-
-```python
-# ✅ Good - Robust input validation
-from pydantic import BaseModel, Field, validator
-from typing import List, Optional
-import re
-
-class VoiceUploadRequest(BaseModel):
-    """Schema for voice upload request."""
-    user_id: str = Field(..., description="ID of the user uploading")
-    file_name: str = Field(..., description="Original name of the uploaded file")
-    file_size: int = Field(..., gt=0, description="Size of the uploaded file in bytes")
-    audio_format: str = Field(..., description="Format of the audio file (e.g., 'wav', 'mp3')")
-    duration: float = Field(..., gt=0, description="Duration of the audio in seconds")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Optional metadata")
+@numba.jit(nopython=True, parallel=True)
+def compute_spectral_features(
+    audio: np.ndarray,
+    frame_size: int = 2048,
+    hop_size: int = 512
+) -> np.ndarray:
+    """Compute spectral features using JIT compilation."""
+    n_frames = (len(audio) - frame_size) // hop_size + 1
+    features = np.zeros((n_frames, frame_size // 2 + 1))
     
-    @validator("user_id")
-    def validate_user_id(cls, v):
-        if not re.match(r"^[a-f0-9]{24}$", v): # Example: MongoDB ObjectId format
-            raise ValueError("Invalid user ID format")
-        return v
+    for i in numba.prange(n_frames):
+        start = i * hop_size
+        frame = audio[start:start + frame_size]
+        window = np.hanning(frame_size)
+        windowed = frame * window
+        spectrum = np.fft.rfft(windowed)
+        features[i] = np.abs(spectrum)
     
-    @validator("file_name")
-    def validate_file_name(cls, v):
-        if not re.match(r"^[a-zA-Z0-9_\-\.]+\.[a-zA-Z0-9]+$", v):
-            raise ValueError("Invalid file name format")
-        return v
-    
-    @validator("audio_format")
-    def validate_audio_format(cls, v):
-        if v.lower() not in SUPPORTED_AUDIO_FORMATS:
-            raise ValueError(f"Unsupported audio format: {v}")
-        return v
-    
-    @validator("duration")
-    def validate_duration(cls, v):
-        if v > MAX_AUDIO_DURATION:
-            raise ValueError(f"Audio duration exceeds maximum allowed: {MAX_AUDIO_DURATION}s")
-        return v
+    return features
 
 
-# Usage in FastAPI endpoint
-from fastapi import APIRouter, UploadFile, File, Depends
+# Caching for expensive computations
 
-router = APIRouter()
-
-@router.post("/voice/upload")
-async def upload_voice(
-    user_id: str,
-    file: UploadFile = File(...),
-    duration: float = Field(..., gt=0),
-    audio_format: str = Field(...)
-):
-    # Validate input using Pydantic model
-    request_data = VoiceUploadRequest(
-        user_id=user_id,
-        file_name=file.filename,
-        file_size=file.size,
-        audio_format=audio_format,
-        duration=duration
-    )
+class CachedVoiceAnalyzer:
+    """Voice analyzer with caching."""
     
-    # Process the valid file
-    content = await file.read()
-    # ... further processing
+    def __init__(self, cache_size: int = 128):
+        self.cache_size = cache_size
+        self._feature_cache = {}
     
-    return {"message": "Upload successful"}
-```
-
-### Secure Data Handling
-
-```python
-# ✅ Good - Secure data handling
-import hashlib
-import os
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.backends import default_backend
-from cryptography.fernet import Fernet
-import base64
-import json
-import logging
-
-logger = logging.getLogger(__name__)
-
-class SecureDataHandler:
-    """Handles secure encryption and decryption of sensitive data."""
-    
-    def __init__(self, encryption_key: str):
-        """Initialize handler with a base64-encoded encryption key."""
-        try:
-            self._fernet = Fernet(encryption_key)
-        except Exception as e:
-            logger.critical(f"Invalid encryption key provided: {e}")
-            raise ValueError("Invalid encryption key format") from e
-    
-    def encrypt(self, data: Dict[str, Any]) -> str:
-        """Encrypt a dictionary of data."""
-        try:
-            json_data = json.dumps(data)
-            encrypted_data = self._fernet.encrypt(json_data.encode("utf-8"))
-            return encrypted_data.decode("utf-8")
-        except Exception as e:
-            logger.error(f"Failed to encrypt data: {e}", exc_info=True)
-            raise RuntimeError("Data encryption failed") from e
-    
-    def decrypt(self, encrypted_data: str) -> Dict[str, Any]:
-        """Decrypt a base64-encoded encrypted string."""
-        try:
-            decrypted_data = self._fernet.decrypt(encrypted_data.encode("utf-8"))
-            return json.loads(decrypted_data.decode("utf-8"))
-        except Exception as e:
-            logger.error(f"Failed to decrypt data: {e}", exc_info=True)
-            raise RuntimeError("Data decryption failed") from e
-    
-    @staticmethod
-    def generate_key() -> str:
-        """Generate a new Fernet encryption key."""
-        return Fernet.generate_key().decode("utf-8")
-    
-    @staticmethod
-    def derive_key_from_password(password: str, salt: bytes) -> str:
-        """Derive an encryption key from a password and salt."""
-        kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt,
-            iterations=480000, # Recommended iterations
-            backend=default_backend()
+    @lru_cache(maxsize=128)
+    def _compute_mel_filters(
+        self,
+        n_filters: int,
+        n_fft: int,
+        sample_rate: int
+    ) -> np.ndarray:
+        """Compute mel filterbank (cached)."""
+        return librosa.filters.mel(
+            sr=sample_rate,
+            n_fft=n_fft,
+            n_mels=n_filters
         )
-        key = base64.urlsafe_b64encode(kdf.derive(password.encode("utf-8")))
-        return key.decode("utf-8")
+    
+    def extract_features(
+        self,
+        audio_path: Path,
+        use_cache: bool = True
+    ) -> Dict[str, np.ndarray]:
+        """Extract features with optional caching."""
+        cache_key = str(audio_path)
+        
+        if use_cache and cache_key in self._feature_cache:
+            return self._feature_cache[cache_key]
+        
+        audio, sr = librosa.load(audio_path, sr=16000)
+        with ProcessPoolExecutor(max_workers=4) as executor:
+            mfcc_future = executor.submit(self._extract_mfcc, audio, sr)
+            pitch_future = executor.submit(self._extract_pitch, audio, sr)
+            energy_future = executor.submit(self._extract_energy, audio)
+            
+            features = {
+                "mfcc": mfcc_future.result(),
+                "pitch": pitch_future.result(),
+                "energy": energy_future.result()
+            }
+        
+        if use_cache and len(self._feature_cache) < self.cache_size:
+            self._feature_cache[cache_key] = features
+        
+        return features
+    
+    @staticmethod
+    def _extract_mfcc(audio: np.ndarray, sr: int) -> np.ndarray:
+        """Extract MFCC features."""
+        return librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=13)
+    
+    @staticmethod
+    def _extract_pitch(audio: np.ndarray, sr: int) -> np.ndarray:
+        """Extract pitch features."""
+        pitches, magnitudes = librosa.piptrack(y=audio, sr=sr)
+        return pitches.mean(axis=0)
+    
+    @staticmethod
+    def _extract_energy(audio: np.ndarray) -> np.ndarray:
+        """Extract energy features."""
+        return librosa.feature.rms(y=audio)[0]
 
 
-# Usage
-# key = SecureDataHandler.generate_key() # Store this securely!
-# handler = SecureDataHandler(key)
+class VectorizedProcessor:
+    """Processor using vectorized operations."""
+    
+    @staticmethod
+    def normalize_batch(audio_batch: np.ndarray) -> np.ndarray:
+        """Normalize a batch of audio samples efficiently."""
+        max_vals = np.abs(audio_batch).max(axis=1, keepdims=True)
+        max_vals = np.maximum(max_vals, 1e-8)
+        return audio_batch / max_vals * 0.95
+    
+    @staticmethod
+    def apply_filters_vectorized(
+        audio_batch: np.ndarray,
+        filter_coeffs: np.ndarray
+    ) -> np.ndarray:
+        """Apply filters to audio batch using convolution."""
+        n = audio_batch.shape[1] + len(filter_coeffs) - 1
+        audio_fft = np.fft.rfft(audio_batch, n=n, axis=1)
+        filter_fft = np.fft.rfft(filter_coeffs, n=n)
+        result_fft = audio_fft * filter_fft[np.newaxis, :]
+        result = np.fft.irfft(result_fft, n=n, axis=1)
+        return result[:, :audio_batch.shape[1]]
 
-# sensitive_data = {"credit_card": "...", "ssn": "..."}
-# encrypted_string = handler.encrypt(sensitive_data)
 
-# decrypted_data = handler.decrypt(encrypted_string)
+# Memory-efficient streaming
+
+class StreamingVoiceProcessor:
+    """Process large audio files in streaming fashion."""
+    
+    def __init__(self, chunk_size: int = 16000):
+        self.chunk_size = chunk_size
+        self.overlap = chunk_size // 4  # 25% overlap
+    
+    def process_file_streaming(
+        self,
+        file_path: Path,
+        callback: Callable[[np.ndarray], np.ndarray]
+    ) -> None:
+        """Process large file in chunks.
+        
+        Args:
+            file_path: Path to audio file
+            callback: Function to process each chunk
+        """
+        with soundfile.SoundFile(file_path) as audio_file:
+            total_frames = len(audio_file)
+            position = 0
+            
+            while position < total_frames:
+                audio_file.seek(max(0, position - self.overlap))
+                chunk = audio_file.read(self.chunk_size)
+                processed = callback(chunk)
+                
+                if position > 0:
+                    processed = self._blend_overlap(processed, self.overlap)
+                
+                position += self.chunk_size - self.overlap
+    
+    @staticmethod
+    def _blend_overlap(chunk: np.ndarray, overlap_size: int) -> np.ndarray:
+        """Blend overlapping regions using crossfade."""
+        fade_in = np.linspace(0, 1, overlap_size)
+        fade_out = np.linspace(1, 0, overlap_size)
+        
+        chunk[:overlap_size] *= fade_in
+        
+        return chunk
 ```
 
-## 📚 Resources
-
-- [PEP 8 -- Style Guide for Python Code](https://peps.python.org/pep-0008/)
-- [PEP 257 -- Docstring Conventions](https://peps.python.org/pep-0257/)
-- [PEP 484 -- Type Hints](https://peps.python.org/pep-0484/)
-- [PEP 526 -- Syntax for Variable Annotations](https://peps.python.org/pep-0526/)
-- [PEP 586 -- Literal Types](https://peps.python.org/pep-0586/)
-- [PEP 589 -- TypedDict](https://peps.python.org/pep-0589/)
-- [PEP 612 -- Parameter Specification Variables](https://peps.python.org/pep-0612/)
-- [PEP 655 -- Marking individual `TypedDict` items as required or potentially missing](https://peps.python.org/pep-0655/)
-- [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
-- [The Hitchhiker's Guide to Python!](https://docs.python-guide.org/)
+* Use **Numba** or **Cython** for JIT-compiled, performance-critical loops.
+* **Cache** expensive computations with `functools.lru_cache`.
+* Offload independent tasks to **`ProcessPoolExecutor`** for parallelism.
 
 ---
 
-*Last updated: January 2024*
+## 🔒 Security
+
+### Secure Coding Practices
+
+```python
+# ✅ Good - Security-conscious code
+
+import secrets
+import hashlib
+from cryptography.fernet import Fernet
+from pathlib import Path
+import tempfile
+import os
+
+
+class SecureFileHandler:
+    """Secure file handling for audio uploads."""
+    
+    def __init__(self, upload_dir: Path, max_file_size: int = 100 * 1024 * 1024):
+        """Initialize secure file handler.
+        
+        Args:
+            upload_dir: Directory for uploads
+            max_file_size: Maximum allowed file size in bytes
+        """
+        self.upload_dir = upload_dir
+        self.max_file_size = max_file_size
+        self.allowed_extensions = {".mp3", ".wav", ".webm", ".ogg"}
+        
+        # Ensure upload directory is secure
+        self.upload_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    
+    def validate_file(self, file_path: Path, user_id: str) -> None:
+        """Validate uploaded file for security.
+        
+        Args:
+            file_path: Path to uploaded file
+            user_id: ID of user uploading file
+            
+        Raises:
+            SecurityError: If file fails validation
+        """
+        if not file_path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+        
+        file_size = file_path.stat().st_size
+        if file_size > self.max_file_size:
+            raise SecurityError(
+                f"File too large: {file_size} bytes (max: {self.max_file_size})"
+            )
+        
+        if file_path.suffix.lower() not in self.allowed_extensions:
+            raise SecurityError(f"Invalid file extension: {file_path.suffix}")
+        
+        mime_type = self._get_mime_type(file_path)
+        if not mime_type.startswith("audio/"):
+            raise SecurityError(f"Invalid MIME type: {mime_type}")
+        
+        if ".." in str(file_path) or file_path.is_absolute():
+            raise SecurityError("Path traversal detected")
+        
+        if not self._verify_ownership(file_path, user_id):
+            raise SecurityError("Unauthorized file access")
+    
+    def secure_save(
+        self,
+        file_data: bytes,
+        original_name: str,
+        user_id: str
+    ) -> Path:
+        """Securely save uploaded file.
+        
+        Args:
+            file_data: File content
+            original_name: Original filename
+            user_id: User ID
+            
+        Returns:
+            Path to saved file
+        """
+        file_id = secrets.token_urlsafe(32)
+        extension = Path(original_name).suffix.lower()
+        
+        if extension not in self.allowed_extensions:
+            raise SecurityError(f"Invalid extension: {extension}")
+        
+        user_dir = self.upload_dir / self._hash_user_id(user_id)
+        user_dir.mkdir(mode=0o700, exist_ok=True)
+        
+        file_path = user_dir / f"{file_id}{extension}"
+        
+        with tempfile.NamedTemporaryFile(
+            dir=user_dir,
+            delete=False,
+            mode="wb"
+        ) as tmp_file:
+            tmp_file.write(file_data)
+            tmp_path = Path(tmp_file.name)
+        
+        tmp_path.chmod(0o600)
+        tmp_path.rename(file_path)
+        
+        logger.info(
+            f"File saved: user={user_id}, "
+            f"file={file_path.name}, "
+            f"size={len(file_data)}"
+        )
+        
+        return file_path
+    
+    @staticmethod
+    def _get_mime_type(file_path: Path) -> str:
+        """Get MIME type using python-magic."""
+        import magic
+        mime = magic.Magic(mime=True)
+        return mime.from_file(str(file_path))
+    
+    @staticmethod
+    def _hash_user_id(user_id: str) -> str:
+        """Hash user ID for directory name."""
+        return hashlib.sha256(user_id.encode()).hexdigest()[:16]
+    
+    def _verify_ownership(self, file_path: Path, user_id: str) -> bool:
+        """Verify user owns the file."""
+        expected_dir = self.upload_dir / self._hash_user_id(user_id)
+        return file_path.parent == expected_dir
+
+
+class SecureDataProcessor:
+    """Process sensitive data securely."""
+    
+    def __init__(self, encryption_key: Optional[bytes] = None):
+        """Initialize secure processor.
+        
+        Args:
+            encryption_key: Encryption key (generated if not provided)
+        """
+        if encryption_key is None:
+            encryption_key = Fernet.generate_key()
+        
+        self.cipher = Fernet(encryption_key)
+    
+    def process_sensitive_audio(
+        self,
+        audio_data: np.ndarray,
+        metadata: Dict[str, Any]
+    ) -> bytes:
+        """Process and encrypt sensitive audio data.
+        
+        Args:
+            audio_data: Audio samples
+            metadata: Audio metadata
+            
+        Returns:
+            Encrypted data package
+        """
+        if not isinstance(audio_data, np.ndarray):
+            raise TypeError("Audio data must be numpy array")
+        
+        safe_metadata = self._sanitize_metadata(metadata)
+        package = {
+            "audio": audio_data.tobytes(),
+            "dtype": str(audio_data.dtype),
+            "shape": audio_data.shape,
+            "metadata": safe_metadata
+        }
+        
+        serialized = pickle.dumps(package)
+        encrypted = self.cipher.encrypt(serialized)
+        
+        return encrypted
+    
+    def decrypt_audio_package(self, encrypted_data: bytes) -> Tuple[np.ndarray, Dict[str, Any]]:
+        """Decrypt and unpack audio data.
+        
+        Args:
+            encrypted_data: Encrypted data package
+            
+        Returns:
+            Tuple of (audio_data, metadata)
+        """
+        try:
+            decrypted = self.cipher.decrypt(encrypted_data)
+            package = pickle.loads(decrypted)
+            
+            audio_bytes = package["audio"]
+            dtype = np.dtype(package["dtype"])
+            shape = package["shape"]
+            
+            audio_data = np.frombuffer(audio_bytes, dtype=dtype).reshape(shape)
+            return audio_data, package["metadata"]
+            
+        except Exception as e:
+            logger.error("Decryption failed", exc_info=True)
+            raise SecurityError("Failed to decrypt audio package") from e
+    
+    @staticmethod
+    def _sanitize_metadata(metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Remove sensitive information from metadata."""
+        sensitive_keys = {
+            "user_id", "email", "ip_address", "api_key",
+            "password", "token", "secret"
+        }
+        sanitized = {}
+        for key, value in metadata.items():
+            if key.lower() not in sensitive_keys:
+                if isinstance(value, dict):
+                    sanitized[key] = SecureDataProcessor._sanitize_metadata(value)
+                else:
+                    sanitized[key] = value
+        return sanitized
+```
+
+* **Enforce** file size and extension checks.
+* **Prevent** path traversal.
+* **Encrypt** sensitive data with a **strong cipher**.
+* Remove sensitive fields (e.g., `user_id`, `api_key`) from metadata.
+
+---
+
+# End of Style Guide
+
+
