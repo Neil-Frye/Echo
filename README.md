@@ -270,25 +270,25 @@ See [Deployment Guide](docs/deployment.md) for detailed instructions.
 
 ## 🗺️ Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Q2 2025)
 - ✅ Core voice synthesis
 - ✅ Basic personality modeling
 - ✅ Family sharing
 - 🔄 Mobile apps
 - 🔄 Multi-language support
 
-### Phase 2 (Q2 2024)
+### Phase 2 (Q3 2025)
 - 📅 Emotion detection
 - 📅 Advanced AI features
 - 📅 API platform
 - 📅 Enterprise features
 
-### Phase 3 (Q4 2024)
+### Phase 3 (Q4 2025)
 - 📅 Holographic displays
 - 📅 VR integration
 - 📅 Brain-computer interface research
 
-### Phase 4 (2025+)
+### Phase 4 (2026+)
 - 📅 Robotic avatars
 - 📅 Quantum computing integration
 - 📅 Global memorial network
