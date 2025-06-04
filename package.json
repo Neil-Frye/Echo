@@ -1,0 +1,33 @@
+{
+  "name": "ethernalecho",
+  "version": "1.0.0",
+  "description": "EthernalEcho - A SaaS platform for preserving consciousness through AI",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Neil-Frye/Echo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Neil-Frye/Echo/issues"
+  },
+  "homepage": "https://github.com/Neil-Frye/Echo#readme",
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "lerna": "^8.2.2",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,44 @@
+FROM node:18-alpine as builder
+
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+
+WORKDIR /app
+
+# Copy package.json files
+COPY package.json ./
+COPY lerna.json ./
+COPY services/${SERVICE_NAME}/package.json ./services/${SERVICE_NAME}/
+COPY packages/shared/package.json ./packages/shared/
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY services/${SERVICE_NAME} ./services/${SERVICE_NAME}
+COPY packages/shared ./packages/shared
+
+# Build packages
+RUN npm run build --workspace=@ethernalecho/shared
+RUN npm run build --workspace=@ethernalecho/${SERVICE_NAME}-service
+
+# Production image
+FROM node:18-alpine
+
+ARG SERVICE_NAME
+ENV SERVICE_NAME=${SERVICE_NAME}
+
+WORKDIR /app
+
+# Copy built packages
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/lerna.json ./
+COPY --from=builder /app/services/${SERVICE_NAME}/package.json ./services/${SERVICE_NAME}/
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+COPY --from=builder /app/services/${SERVICE_NAME}/dist ./services/${SERVICE_NAME}/dist
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+
+# Install production dependencies
+RUN npm ci --production
+
+CMD ["node", "services/${SERVICE_NAME}/dist/index.js"]

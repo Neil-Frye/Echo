@@ -1,0 +1,16 @@
+{
+  "name": "@ethernalecho/conversation-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Conversation management service for EthernalEcho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo \"Conversation service development server\" && exit 0",
+    "build": "echo \"Build conversation service\" && exit 0",
+    "test": "echo \"Run conversation service tests\" && exit 0",
+    "start": "echo \"Start conversation service\" && exit 0"
+  },
+  "dependencies": {
+    "@ethernalecho/shared": "^0.1.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@ethernalecho/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API gateway for EthernalEcho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo \"API development server\" && exit 0",
+    "build": "echo \"Build API\" && exit 0",
+    "test": "echo \"Run API tests\" && exit 0"
+  },
+  "dependencies": {
+    "@ethernalecho/shared": "^0.1.0"
+  }
+}

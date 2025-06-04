@@ -1,0 +1,40 @@
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Copy package.json files
+COPY package.json ./
+COPY lerna.json ./
+COPY packages/api/package.json ./packages/api/
+COPY packages/shared/package.json ./packages/shared/
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY packages/api ./packages/api
+COPY packages/shared ./packages/shared
+
+# Build packages
+RUN npm run build --workspace=@ethernalecho/shared
+RUN npm run build --workspace=@ethernalecho/api
+
+# Production image
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy built packages
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/lerna.json ./
+COPY --from=builder /app/packages/api/package.json ./packages/api/
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+COPY --from=builder /app/packages/api/dist ./packages/api/dist
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+
+# Install production dependencies
+RUN npm ci --production
+
+EXPOSE 3000
+
+CMD ["node", "packages/api/dist/index.js"]

@@ -1,0 +1,16 @@
+{
+  "name": "@ethernalecho/ai-personality-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI personality modeling service for EthernalEcho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo \"AI personality service development server\" && exit 0",
+    "build": "echo \"Build AI personality service\" && exit 0",
+    "test": "echo \"Run AI personality service tests\" && exit 0",
+    "start": "echo \"Start AI personality service\" && exit 0"
+  },
+  "dependencies": {
+    "@ethernalecho/shared": "^0.1.0"
+  }
+}

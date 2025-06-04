@@ -1,0 +1,16 @@
+{
+  "name": "@ethernalecho/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mobile applications for EthernalEcho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo \"Mobile development server\" && exit 0",
+    "build": "echo \"Build mobile application\" && exit 0",
+    "test": "echo \"Run mobile tests\" && exit 0"
+  },
+  "dependencies": {
+    "@ethernalecho/shared": "^0.1.0",
+    "@ethernalecho/ui": "^0.1.0"
+  }
+}

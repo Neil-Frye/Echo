@@ -1,0 +1,16 @@
+{
+  "name": "@ethernalecho/auth-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Authentication service for EthernalEcho",
+  "main": "index.js",
+  "scripts": {
+    "dev": "echo \"Auth service development server\" && exit 0",
+    "build": "echo \"Build auth service\" && exit 0",
+    "test": "echo \"Run auth service tests\" && exit 0",
+    "start": "echo \"Start auth service\" && exit 0"
+  },
+  "dependencies": {
+    "@ethernalecho/shared": "^0.1.0"
+  }
+}

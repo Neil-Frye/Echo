@@ -1,0 +1,191 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: ethernalecho-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ethernalecho
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: ethernalecho-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  mongo:
+    image: mongo:latest
+    container_name: ethernalecho-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  api-gateway:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.api
+    container_name: ethernalecho-api
+    depends_on:
+      - postgres
+      - redis
+      - mongo
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_URI=mongodb://mongo:mongo@mongo:27017/ethernalecho?authSource=admin
+
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: auth
+    container_name: ethernalecho-auth
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  content-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: content
+    container_name: ethernalecho-content
+    depends_on:
+      - postgres
+      - mongo
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - MONGO_URI=mongodb://mongo:mongo@mongo:27017/ethernalecho?authSource=admin
+
+  ai-voice-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: ai-voice
+    container_name: ethernalecho-ai-voice
+    depends_on:
+      - postgres
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+
+  ai-personality-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: ai-personality
+    container_name: ethernalecho-ai-personality
+    depends_on:
+      - postgres
+      - mongo
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - MONGO_URI=mongodb://mongo:mongo@mongo:27017/ethernalecho?authSource=admin
+
+  conversation-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: conversation
+    container_name: ethernalecho-conversation
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  billing-service:
+    build:
+      context: ../../
+      dockerfile: ./infrastructure/docker/Dockerfile.service
+      args:
+        SERVICE_NAME: billing
+    container_name: ethernalecho-billing
+    depends_on:
+      - postgres
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ethernalecho
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+
+volumes:
+  postgres_data:
+  redis_data:
+  mongo_data:
