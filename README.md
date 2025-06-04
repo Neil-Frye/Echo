@@ -173,10 +173,10 @@ graph TB
 
 | Plan | Monthly | Annual | Storage | Family Members | Features |
 |------|---------|--------|---------|----------------|----------|
-| **Lite** | $29.99 | $299.99 | 5GB | 2 | Basic voice & AI |
-| **Standard** | $49.99 | $479.99 | 25GB | 5 | + Video messages |
-| **Premium** | $99.99 | $899.99 | 100GB | 10 | + Holographic preview |
-| **Lifetime** | - | $2,499 | Unlimited | Unlimited | All features + 100-year guarantee |
+| **Lite** | Free | Free | 5GB | 2 | Basic voice & AI |
+| **Standard** | TBD | TBD | 25GB | 5 | + Video messages |
+| **Premium** | TBD | TBD| 100GB | 10 | + Holographic preview |
+| **Lifetime** | - | TBD | Unlimited | Unlimited | All features + 100-year guarantee |
 
 ## 🔒 Security & Privacy
 
