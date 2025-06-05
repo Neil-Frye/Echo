@@ -12,7 +12,23 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev:services\" \"npm run dev:web\"",
+    "dev:services": "concurrently \"npm run dev:auth\" \"npm run dev:voice\" \"npm run dev:content\" \"npm run dev:personality\" \"npm run dev:conversation\" \"npm run dev:billing\" \"npm run dev:gateway\"",
+    "dev:auth": "cd services/auth && npm run dev",
+    "dev:voice": "cd services/ai-voice && npm run dev",
+    "dev:content": "cd services/content && npm run dev",
+    "dev:personality": "cd services/ai-personality && npm run dev",
+    "dev:conversation": "cd services/conversation && npm run dev",
+    "dev:billing": "cd services/billing && npm run dev",
+    "dev:gateway": "cd packages/api && npm run dev",
+    "dev:web": "cd packages/web && npm run dev",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "bootstrap": "lerna bootstrap",
+    "clean": "lerna clean -y && rm -rf node_modules",
+    "db:migrate": "cd scripts && ./migrate.sh",
+    "db:seed": "cd scripts && ./seed.sh"
   },
   "repository": {
     "type": "git",
@@ -27,6 +43,7 @@
   "homepage": "https://github.com/Neil-Frye/Echo#readme",
   "devDependencies": {
     "@types/node": "^22.15.29",
+    "concurrently": "^7.6.0",
     "lerna": "^8.2.2",
     "typescript": "^5.8.3"
   }
